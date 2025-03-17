@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { STORAGE_KEYS } from "../constants";
-import { v4 as uuidv4 } from "uuid";
 import type { Layout, Layouts } from "react-grid-layout";
 
 export type WidgetType = "IDENTITIES_PROVIDED" | "OPENED_MESSAGE" | "CLICKED";
@@ -42,27 +41,29 @@ const generateDefaultWidgets = (): Widget[] => {
   return [
     {
       id: "widget-1",
-      title: "Total Sales",
-      description: "Sum of all sales in the current month",
+      title: "Identities Provided",
+      description: "New identities provided during the selected time period.",
       type: "IDENTITIES_PROVIDED",
-      value: 125000,
-      icon: "",
+      value: 0,
+      icon: "👤",
     },
     {
       id: "widget-2",
-      title: "Active Customers",
-      description: "Number of customers with activity in the last 30 days",
+      title: "Opened Message",
+      description:
+        "Number of provided identities who opened emails during the selected time period.",
       type: "OPENED_MESSAGE",
-      value: 256,
-      icon: "",
+      value: 0,
+      icon: "📨",
     },
     {
       id: "widget-3",
-      title: "Pending Orders",
-      description: "Orders awaiting processing",
+      title: "Clicked",
+      description:
+        "Number of provided identities who clicked on emails for the selected time period.",
       type: "CLICKED",
-      value: 64,
-      icon: "",
+      value: 0,
+      icon: "🖱",
     },
   ];
 };
@@ -74,8 +75,8 @@ const generateDefaultLayouts = (
   return {
     lg: widgets.map((widget, index) => ({
       i: widget.id,
-      x: (index * 4) % 12,
-      y: Math.floor(index / 3) * 3,
+      x: index * 4, // Place widgets horizontally next to each other
+      y: 0, // All widgets in the same row (y=0)
       w: 4,
       h: 3,
       minW: 2,
@@ -115,6 +116,7 @@ const generateDefaultLayouts = (
 const loadDashboardState = (): DashboardState => {
   try {
     const defaultWidgets = generateDefaultWidgets();
+    const defaultLayouts = generateDefaultLayouts(defaultWidgets);
 
     const storedWidgetsJSON = localStorage.getItem(
       STORAGE_KEYS.DASHBOARD_WIDGETS
@@ -128,7 +130,22 @@ const loadDashboardState = (): DashboardState => {
       : defaultWidgets;
     const layouts = storedLayoutsJSON
       ? JSON.parse(storedLayoutsJSON)
-      : generateDefaultLayouts(defaultWidgets);
+      : defaultLayouts;
+
+    // Store default values if not already saved
+    if (!storedWidgetsJSON) {
+      localStorage.setItem(
+        STORAGE_KEYS.DASHBOARD_WIDGETS,
+        JSON.stringify(defaultWidgets)
+      );
+    }
+
+    if (!storedLayoutsJSON) {
+      localStorage.setItem(
+        STORAGE_KEYS.DASHBOARD_LAYOUTS,
+        JSON.stringify(defaultLayouts)
+      );
+    }
 
     return {
       widgets,
@@ -176,14 +193,49 @@ const dashboardSlice = createSlice({
 
     addWidget: (state, action: PayloadAction<Widget>) => {
       state.widgets.push(action.payload);
+
+      // Calculate layout position for the new widget
+      const findPosition = (layouts: Layout[], cols: number) => {
+        // Find the rightmost widget on the first row
+        let maxX = 0;
+        layouts.forEach((layout) => {
+          if (layout.y === 0 && layout.x + layout.w > maxX) {
+            maxX = layout.x + layout.w;
+          }
+        });
+
+        // If there's room on the first row, place it there
+        if (maxX + 4 <= cols) {
+          return { x: maxX, y: 0 };
+        }
+
+        // Otherwise, find the lowest position
+        let y = 0;
+        layouts.forEach((layout) => {
+          y = Math.max(y, layout.y + layout.h);
+        });
+
+        return { x: 0, y };
+      };
+
       // Add layout for each breakpoint
       Object.keys(state.layouts).forEach((breakpoint) => {
+        const layouts = (state.layouts as any)[breakpoint] || [];
+        const cols =
+          breakpoint === "lg"
+            ? 12
+            : breakpoint === "md" || breakpoint === "sm"
+              ? 6
+              : 4;
+
+        const position = findPosition(layouts, cols);
+
         (state.layouts as any)[breakpoint].push({
           i: action.payload.id,
-          x: 0,
-          y: 0,
+          x: position.x,
+          y: position.y,
           w: 4,
-          h: 2,
+          h: 3,
           minW: 2,
           minH: 2,
         });

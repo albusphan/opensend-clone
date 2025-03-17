@@ -181,3 +181,8 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+/* Placeholder for drag and drop */
+.react-grid-item.react-grid-placeholder {
+  background: var(--primary) !important;
+}

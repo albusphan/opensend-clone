@@ -20,10 +20,10 @@ export function calculateAllowedRoutes(
     };
   }
 
-  // Admin users - they should ONLY access the admin route
+  // Admin users - they should access /admin (primary) and /dashboard (for widget editing)
   if (view.type === "ADMIN") {
     return {
-      allowedRoutes: ["/admin"],
+      allowedRoutes: ["/admin", "/dashboard"],
       defaultRoute: "/admin",
     };
   }

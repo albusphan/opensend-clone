@@ -1,22 +1,8 @@
-import { useState } from "react";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setEditingWidget } from "@/lib/redux/dashboardSlice";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Pencil,
-  Trash2,
-  GripVertical,
-  TrendingUp,
-  TrendingDown,
-  ChevronsUpDown,
-} from "lucide-react";
+import { Pencil, Trash2, GripVertical } from "lucide-react";
 import type { Widget as WidgetType } from "@/lib/redux/dashboardSlice";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +14,6 @@ interface WidgetProps {
 
 export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
   const dispatch = useAppDispatch();
-  const [isHovering, setIsHovering] = useState(false);
 
   // Format the value based on widget type
   const formatValue = (value: number | undefined) => {
@@ -36,35 +21,8 @@ export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
     return new Intl.NumberFormat().format(safeValue);
   };
 
-  // Get trend indicator component
-  const TrendIndicator = () => {
-    // For this example, we'll use random trends
-    const trendDirection = Math.random() > 0.5 ? "up" : "down";
-    const trendValue = Math.floor(Math.random() * 10) + 1;
-
-    if (trendDirection === "up") {
-      return (
-        <div className="flex items-center text-emerald-500">
-          <TrendingUp className="h-4 w-4 mr-1" />
-          <span>{trendValue}%</span>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex items-center text-rose-500">
-          <TrendingDown className="h-4 w-4 mr-1" />
-          <span>{trendValue}%</span>
-        </div>
-      );
-    }
-  };
-
   return (
-    <Card
-      className="h-full flex flex-col transition-all relative group"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
+    <Card className="h-full flex flex-col transition-all relative group pb-0">
       {/* Drag handle - only visible when hovering and admin */}
       {isAdmin && (
         <div
@@ -77,37 +35,26 @@ export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
         </div>
       )}
 
-      <CardHeader className="relative p-4 pb-0">
-        <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <span className="text-xl">{widget.icon}</span>
-          {widget.title}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="flex flex-col flex-grow p-4">
-        <p className="text-sm text-muted-foreground">{widget.description}</p>
-
-        <div className="mt-auto pt-4">
-          <div className="flex items-baseline justify-between">
-            <div className="text-3xl font-bold">
-              {formatValue(widget.value)}
-            </div>
-            <TrendIndicator />
-          </div>
-
-          <div className="text-xs text-muted-foreground mt-1">
-            Compared to last period
-          </div>
+      <CardContent className="flex flex-col flex-grow px-6">
+        <div className="text-lg font-bold mb-2 uppercase">{widget.title}</div>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-2xl">{widget.icon}</span>
+          <span className="text-3xl font-bold">
+            {formatValue(widget.value)}
+          </span>
         </div>
       </CardContent>
 
+      <CardFooter className="px-6 py-2 flex justify-end bg-muted">
+        <p className="text-sm text-muted-foreground">{widget.description}</p>
+      </CardFooter>
       {isAdmin && (
-        <CardFooter className="p-2 flex justify-end gap-2">
+        <div className="flex gap-2 absolute top-2 right-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => dispatch(setEditingWidget(widget.id))}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-opacity bg-muted"
           >
             <Pencil className="h-4 w-4" />
             <span className="sr-only">Edit</span>
@@ -116,23 +63,11 @@ export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
             variant="ghost"
             size="sm"
             onClick={() => onRemove(widget.id)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-opacity bg-muted"
           >
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Delete</span>
           </Button>
-        </CardFooter>
-      )}
-
-      {/* Resize handle indicator - only visible when hovering and admin */}
-      {isAdmin && (
-        <div
-          className={cn(
-            "absolute bottom-1 right-1 transition-opacity",
-            "opacity-0 group-hover:opacity-100"
-          )}
-        >
-          <ChevronsUpDown className="h-4 w-4 text-muted-foreground opacity-50" />
         </div>
       )}
     </Card>
