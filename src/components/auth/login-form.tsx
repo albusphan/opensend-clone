@@ -1,3 +1,11 @@
+import { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLoginMutation } from "@/lib/redux/api";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { setCredentials } from "@/lib/redux/authSlice";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,59 +16,149 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+
+  // Initialize form
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // Handle form submission
+  const onSubmit = async (data: LoginValues) => {
+    try {
+      setErrorMessage(null);
+      const response = await login(data).unwrap();
+
+      // Store the tokens and user info in Redux
+      dispatch(
+        setCredentials({
+          accessToken: response.tokens.accessToken,
+          refreshToken: response.tokens.refreshToken,
+          clientToken: response.tokens.clientToken,
+          user: response.user,
+          view: response.view,
+          accesses: response.accesses,
+        })
+      );
+
+      // After successful login, let the routing system handle redirection
+      // This allows for consistent permission checking and honoring intendedDestination
+      window.location.reload();
+    } catch (error: any) {
+      const errorData = error?.data || {};
+      const errorCode = errorData.code || "";
+      const errorMsg = errorData.message || "";
+
+      const formattedErrorMsg = errorMsg.includes("::")
+        ? errorMsg.split("::")[1].trim()
+        : errorMsg;
+
+      setErrorMessage(formattedErrorMsg || "Login failed");
+
+      // Handle specific error codes
+      if (errorCode === "AUTH_EMAIL_NOTFOUND") {
+        form.setError("email", {
+          message:
+            formattedErrorMsg ||
+            "Email not found. Please check your email address.",
+        });
+      }
+      if (errorCode === "AUTH_INVALID_PASSWORD") {
+        form.setError("password", {
+          message: formattedErrorMsg || "Invalid password. Please try again.",
+        });
+      }
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
+          <CardTitle className="text-2xl">Welcome back!</CardTitle>
+          <CardDescription>Log in to continue with Opensend </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" type="password" required />
-              </div>
-              <Button type="submit" className="w-full">
-                Login
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="email@example.com"
+                        autoComplete="email"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-destructive font-medium" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        autoComplete="current-password"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-destructive font-medium" />
+                  </FormItem>
+                )}
+              />
+
+              {errorMessage &&
+                !form.formState.errors.email &&
+                !form.formState.errors.password && (
+                  <div className="text-sm text-destructive">{errorMessage}</div>
+                )}
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || !form.formState.isValid}
+              >
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
-              <Button variant="outline" className="w-full">
-                Login with Google
-              </Button>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
-              </a>
-            </div>
-          </form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
