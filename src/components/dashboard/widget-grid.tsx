@@ -24,13 +24,11 @@ export function WidgetGrid() {
     (state) => state.dashboard
   );
   const { view } = useAppSelector((state) => state.auth);
-  const isAdmin = true;
+  const isAdmin = view?.type === "ADMIN";
   const [currentBreakpoint, setCurrentBreakpoint] = useState("lg");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
-  // Make sure all widgets have layouts defined for the current breakpoint
   useEffect(() => {
-    // Ensure each widget has a layout in the current breakpoint
     const currentLayout = layouts[currentBreakpoint] || [];
     const layoutItems = currentLayout.map((item) => item.i);
 
@@ -39,12 +37,8 @@ export function WidgetGrid() {
     );
 
     if (missingWidgets.length > 0) {
-      console.log("Found widgets missing from layout:", missingWidgets);
-
-      // Create updated layouts
       const updatedLayouts = { ...layouts };
 
-      // Add missing widgets to layouts
       missingWidgets.forEach((widget, idx) => {
         if (!updatedLayouts[currentBreakpoint]) {
           updatedLayouts[currentBreakpoint] = [];
@@ -67,24 +61,16 @@ export function WidgetGrid() {
         });
       });
 
-      // Save the updated layouts
       dispatch(updateLayouts({ layouts: updatedLayouts }));
     }
   }, [currentBreakpoint, widgets, layouts, dispatch]);
 
-  // Find the widget being edited
   const widgetToEdit = widgets.find((w) => w.id === editingWidget);
 
-  // Handle layout changes
   const handleLayoutChange = (layout: any, layouts: any) => {
-    // Save layouts to Redux store
     dispatch(updateLayouts({ layouts }));
-
-    // Log the saved layout
-    console.log("Layout updated and saved:", layouts);
   };
 
-  // Handle widget removal
   const handleRemoveWidget = (id: string) => {
     dispatch(removeWidget(id));
     toast.success("Widget removed", {
@@ -120,8 +106,8 @@ export function WidgetGrid() {
           onLayoutChange={handleLayoutChange}
           onBreakpointChange={setCurrentBreakpoint}
           breakpoint={currentBreakpoint}
-          isDraggable
-          isResizable
+          isDraggable={isAdmin}
+          isResizable={isAdmin}
           draggableHandle=".drag-handle"
           margin={[16, 16]}
           containerPadding={[0, 0]}

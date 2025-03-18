@@ -15,7 +15,6 @@ interface WidgetProps {
 export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
   const dispatch = useAppDispatch();
 
-  // Format the value based on widget type
   const formatValue = (value: number | undefined) => {
     const safeValue = value || 0;
     return new Intl.NumberFormat().format(safeValue);
@@ -23,7 +22,6 @@ export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
 
   return (
     <Card className="h-full flex flex-col transition-all relative group pb-0">
-      {/* Drag handle - only visible when hovering and admin */}
       {isAdmin && (
         <div
           className={cn(
@@ -45,7 +43,7 @@ export function Widget({ widget, onRemove, isAdmin }: WidgetProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="px-6 py-2 flex justify-end bg-muted">
+      <CardFooter className="px-6 py-2 flex bg-muted rounded-b-xl">
         <p className="text-sm text-muted-foreground">{widget.description}</p>
       </CardFooter>
       {isAdmin && (

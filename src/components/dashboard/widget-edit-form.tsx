@@ -46,13 +46,11 @@ export function WidgetEditForm({ widget, open, onClose }: WidgetEditFormProps) {
   };
 
   const handleClose = () => {
-    // Reset form when closing without saving
     setTitle(widget.title);
     setDescription(widget.description);
     onClose();
   };
 
-  // Create preview widget with current form values
   const previewWidget = {
     ...widget,
     title,
@@ -70,7 +68,6 @@ export function WidgetEditForm({ widget, open, onClose }: WidgetEditFormProps) {
         </DialogHeader>
 
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Left column - Widget Preview */}
           <div className="flex-1">
             <WidgetComponent
               widget={previewWidget}
@@ -79,7 +76,6 @@ export function WidgetEditForm({ widget, open, onClose }: WidgetEditFormProps) {
             />
           </div>
 
-          {/* Right column - Edit Form */}
           <div className="flex-1">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="p-4 bg-muted rounded-lg mb-4">

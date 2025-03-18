@@ -186,3 +186,38 @@ code {
 .react-grid-item.react-grid-placeholder {
   background: var(--primary) !important;
 }
+
+/* Simple loading animations */
+.animate-logo-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+/* Text entrance animation that starts after logo begins drawing */
+.animate-text-entrance {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: textEntrance 1s ease-out 1s forwards;
+}
+
+@keyframes textEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

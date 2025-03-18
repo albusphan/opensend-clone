@@ -1,12 +1,5 @@
 import { useAppSelector } from "@/lib/redux/hooks";
 import { WidgetGrid } from "@/components/dashboard/widget-grid";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 export function Dashboard() {
   const { user } = useAppSelector((state) => state.auth);

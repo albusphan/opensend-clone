@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-// Define widget types and their configurations
 export const WIDGET_TYPES = {
   IDENTITIES_PROVIDED: {
     title: "Identities Provided",
@@ -58,7 +57,6 @@ export function WidgetDialog({ open, onOpenChange }: WidgetDialogProps) {
     description: string;
   } | null>(null);
 
-  // Handle widget type selection
   const handleWidgetTypeSelect = (type: keyof typeof WIDGET_TYPES) => {
     setSelectedWidgetType(type);
     setWidgetConfig({
@@ -67,7 +65,6 @@ export function WidgetDialog({ open, onOpenChange }: WidgetDialogProps) {
     });
   };
 
-  // Handle widget configuration
   const handleWidgetConfigure = () => {
     if (!selectedWidgetType || !widgetConfig) return;
 
@@ -89,13 +86,11 @@ export function WidgetDialog({ open, onOpenChange }: WidgetDialogProps) {
       description: "New widget has been added to your dashboard",
     });
 
-    // Reset form and close dialog
     setSelectedWidgetType(null);
     setWidgetConfig(null);
     onOpenChange(false);
   };
 
-  // Create preview widget for add/edit modal
   const createPreviewWidget = () => {
     if (!selectedWidgetType || !widgetConfig) return null;
 
@@ -129,7 +124,6 @@ export function WidgetDialog({ open, onOpenChange }: WidgetDialogProps) {
         </DialogHeader>
 
         {!selectedWidgetType ? (
-          // Widget type selection view
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
             {Object.entries(WIDGET_TYPES).map(([type, config]) => (
               <button
@@ -152,9 +146,7 @@ export function WidgetDialog({ open, onOpenChange }: WidgetDialogProps) {
             ))}
           </div>
         ) : (
-          // Widget configuration view
           <div className="flex flex-col md:flex-row gap-6">
-            {/* Left column - Widget Preview */}
             <div className="flex-1">
               {createPreviewWidget() && (
                 <Widget
@@ -165,7 +157,6 @@ export function WidgetDialog({ open, onOpenChange }: WidgetDialogProps) {
               )}
             </div>
 
-            {/* Right column - Edit Form */}
             <div className="flex-1">
               <div className="space-y-6">
                 <div className="p-4 bg-muted rounded-lg mb-4">

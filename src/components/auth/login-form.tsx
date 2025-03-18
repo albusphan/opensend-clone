@@ -40,7 +40,6 @@ export function LoginForm({
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
-  // Initialize form
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -49,13 +48,11 @@ export function LoginForm({
     },
   });
 
-  // Handle form submission
   const onSubmit = async (data: LoginValues) => {
     try {
       setErrorMessage(null);
       const response = await login(data).unwrap();
 
-      // Store the tokens and user info in Redux
       dispatch(
         setCredentials({
           accessToken: response.tokens.accessToken,
@@ -67,8 +64,6 @@ export function LoginForm({
         })
       );
 
-      // After successful login, let the routing system handle redirection
-      // This allows for consistent permission checking and honoring intendedDestination
       window.location.reload();
     } catch (error: any) {
       const errorData = error?.data || {};
@@ -81,7 +76,6 @@ export function LoginForm({
 
       setErrorMessage(formattedErrorMsg || "Login failed");
 
-      // Handle specific error codes
       if (errorCode === "AUTH_EMAIL_NOTFOUND") {
         form.setError("email", {
           message:
@@ -89,6 +83,7 @@ export function LoginForm({
             "Email not found. Please check your email address.",
         });
       }
+
       if (errorCode === "AUTH_INVALID_PASSWORD") {
         form.setError("password", {
           message: formattedErrorMsg || "Invalid password. Please try again.",
@@ -98,7 +93,7 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 mt-20", className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Welcome back!</CardTitle>
