@@ -36,87 +36,12 @@ export interface DashboardState {
   editingWidget: string | null;
 }
 
-// Generate default widgets
-const generateDefaultWidgets = (): Widget[] => {
-  return [
-    {
-      id: "widget-1",
-      title: "Identities Provided",
-      description: "New identities provided during the selected time period.",
-      type: "IDENTITIES_PROVIDED",
-      value: 0,
-      icon: "👤",
-    },
-    {
-      id: "widget-2",
-      title: "Opened Message",
-      description:
-        "Number of provided identities who opened emails during the selected time period.",
-      type: "OPENED_MESSAGE",
-      value: 0,
-      icon: "📨",
-    },
-    {
-      id: "widget-3",
-      title: "Clicked",
-      description:
-        "Number of provided identities who clicked on emails for the selected time period.",
-      type: "CLICKED",
-      value: 0,
-      icon: "🖱",
-    },
-  ];
-};
-
-// Generate default layouts for the widgets
-const generateDefaultLayouts = (
-  widgets: Widget[]
-): DashboardState["layouts"] => {
-  return {
-    lg: widgets.map((widget, index) => ({
-      i: widget.id,
-      x: index * 4, // Place widgets horizontally next to each other
-      y: 0, // All widgets in the same row (y=0)
-      w: 4,
-      h: 3,
-      minW: 2,
-      minH: 2,
-    })),
-    md: widgets.map((widget, index) => ({
-      i: widget.id,
-      x: (index * 3) % 6,
-      y: Math.floor(index / 2) * 3,
-      w: 3,
-      h: 3,
-      minW: 2,
-      minH: 2,
-    })),
-    sm: widgets.map((widget, index) => ({
-      i: widget.id,
-      x: (index * 3) % 6,
-      y: Math.floor(index / 2) * 3,
-      w: 3,
-      h: 3,
-      minW: 2,
-      minH: 2,
-    })),
-    xs: widgets.map((widget, index) => ({
-      i: widget.id,
-      x: 0,
-      y: index * 3,
-      w: 4,
-      h: 3,
-      minW: 2,
-      minH: 2,
-    })),
-  };
-};
-
 // Load dashboard state from localStorage
 const loadDashboardState = (): DashboardState => {
   try {
-    const defaultWidgets = generateDefaultWidgets();
-    const defaultLayouts = generateDefaultLayouts(defaultWidgets);
+    // Start with empty arrays instead of defaults
+    const emptyWidgets: Widget[] = [];
+    const emptyLayouts: Layouts = { lg: [], md: [], sm: [], xs: [] };
 
     const storedWidgetsJSON = localStorage.getItem(
       STORAGE_KEYS.DASHBOARD_WIDGETS
@@ -125,25 +50,26 @@ const loadDashboardState = (): DashboardState => {
       STORAGE_KEYS.DASHBOARD_LAYOUTS
     );
 
+    // Use stored values or empty arrays (not defaults)
     const widgets = storedWidgetsJSON
       ? JSON.parse(storedWidgetsJSON)
-      : defaultWidgets;
+      : emptyWidgets;
     const layouts = storedLayoutsJSON
       ? JSON.parse(storedLayoutsJSON)
-      : defaultLayouts;
+      : emptyLayouts;
 
-    // Store default values if not already saved
+    // Store empty values if not already saved (or remove these lines entirely)
     if (!storedWidgetsJSON) {
       localStorage.setItem(
         STORAGE_KEYS.DASHBOARD_WIDGETS,
-        JSON.stringify(defaultWidgets)
+        JSON.stringify(emptyWidgets)
       );
     }
 
     if (!storedLayoutsJSON) {
       localStorage.setItem(
         STORAGE_KEYS.DASHBOARD_LAYOUTS,
-        JSON.stringify(defaultLayouts)
+        JSON.stringify(emptyLayouts)
       );
     }
 
@@ -153,10 +79,10 @@ const loadDashboardState = (): DashboardState => {
       editingWidget: null,
     };
   } catch (error) {
-    const defaultWidgets = generateDefaultWidgets();
+    // Return empty state on error
     return {
-      widgets: defaultWidgets,
-      layouts: generateDefaultLayouts(defaultWidgets),
+      widgets: [],
+      layouts: { lg: [], md: [], sm: [], xs: [] },
       editingWidget: null,
     };
   }
@@ -235,7 +161,7 @@ const dashboardSlice = createSlice({
           x: position.x,
           y: position.y,
           w: 4,
-          h: 3,
+          h: 2,
           minW: 2,
           minH: 2,
         });

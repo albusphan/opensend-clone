@@ -15,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
 import { Widget as WidgetComponent } from "@/components/dashboard/widget";
 
 interface WidgetEditFormProps {
