@@ -20,6 +20,7 @@ import { calculateAllowedRoutes } from "@/lib/utils/routes";
 import type { View, Store, UserProfileResponse } from "@/lib/redux/api";
 import type { RoutePermissions } from "@/lib/utils/routes";
 import { Button } from "@/components/ui/button";
+import { LogoFull } from "@/components/ui/logo-full";
 
 async function fetchUserProfile() {
   return new Promise<UserProfileResponse>(async (resolve, reject) => {
@@ -170,7 +171,7 @@ function RootComponent() {
       <div className="flex p-4 justify-between items-center border-b">
         <div className="flex gap-4 items-center">
           <div className="text-xl font-bold">
-            <img src="/logo-full.svg" alt="OpenSend" className="h-6" />
+            <LogoFull height="24" />
           </div>
           {isAdmin && (
             <>
