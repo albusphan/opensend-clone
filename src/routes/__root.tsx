@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { Button } from "@/components/ui/button";
-import { LogoFull } from "@/components/ui/logo-full";
+import { LogoFull } from "@/components/logo-full";
 import { getRedirectRoute } from "@/lib/utils/auth-redirect";
 
 export const Route = createRootRoute({

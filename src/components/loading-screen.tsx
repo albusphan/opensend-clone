@@ -1,4 +1,4 @@
-import { LogoFull } from "@/components/ui/logo-full";
+import { LogoFull } from "@/components/logo-full";
 
 export function LoadingScreen() {
   return (
