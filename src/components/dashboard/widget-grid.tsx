@@ -67,7 +67,7 @@ export function WidgetGrid() {
 
   const widgetToEdit = widgets.find((w) => w.id === editingWidget);
 
-  const handleLayoutChange = (layout: any, layouts: any) => {
+  const handleLayoutChange = (_layout: any, layouts: any) => {
     dispatch(updateLayouts({ layouts }));
   };
 
