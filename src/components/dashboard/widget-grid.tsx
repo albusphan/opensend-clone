@@ -6,6 +6,7 @@ import {
   setEditingWidget,
 } from "@/lib/redux/dashboardSlice";
 import { Responsive, WidthProvider } from "react-grid-layout";
+import type { Layout, Layouts } from "react-grid-layout";
 import { Widget } from "@/components/dashboard/widget";
 import { WidgetEditForm } from "@/components/dashboard/widget-edit-form";
 import { toast } from "sonner";
@@ -67,7 +68,7 @@ export function WidgetGrid() {
 
   const widgetToEdit = widgets.find((w) => w.id === editingWidget);
 
-  const handleLayoutChange = (_layout: any, layouts: any) => {
+  const handleLayoutChange = (_layout: Layout[], layouts: Layouts) => {
     dispatch(updateLayouts({ layouts }));
   };
 

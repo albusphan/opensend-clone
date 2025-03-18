@@ -8,162 +8,27 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { store } from "@/lib/redux/store";
-import { api } from "@/lib/redux/api";
-import {
-  setUserData,
-  setStoreInfo,
-  setRoutePermissions,
-} from "@/lib/redux/authSlice";
-import { calculateAllowedRoutes } from "@/lib/utils/routes";
-import type { View, Store, UserProfileResponse } from "@/lib/redux/api";
-import type { RoutePermissions } from "@/lib/utils/routes";
 import { Button } from "@/components/ui/button";
 import { LogoFull } from "@/components/ui/logo-full";
-
-async function fetchUserProfile() {
-  return new Promise<UserProfileResponse>(async (resolve, reject) => {
-    try {
-      const profile = await store
-        .dispatch(
-          api.endpoints.getUserProfile.initiate(undefined, {
-            forceRefetch: true,
-          })
-        )
-        .unwrap();
-
-      store.dispatch(
-        setUserData({
-          user: profile.user,
-          view: profile.view,
-          accesses: profile.accesses,
-        })
-      );
-
-      resolve(profile);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-// Helper function to fetch store info
-async function fetchStoreInfo(storeId: string) {
-  return new Promise<Store>(async (resolve, reject) => {
-    try {
-      const storeData = await store
-        .dispatch(
-          api.endpoints.getStoreInfo.initiate(storeId, {
-            forceRefetch: true,
-          })
-        )
-        .unwrap();
-
-      store.dispatch(setStoreInfo(storeData));
-      resolve(storeData);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-// Helper function to ensure permissions are calculated
-function ensurePermissions(
-  view: View,
-  storeInfo: Store | null
-): RoutePermissions {
-  const perms = calculateAllowedRoutes(view, storeInfo);
-  store.dispatch(setRoutePermissions(perms));
-  return perms;
-}
+import { getRedirectRoute } from "@/lib/utils/auth-redirect";
 
 export const Route = createRootRoute({
   component: RootComponent,
 
   beforeLoad: async ({ location }) => {
-    const state = store.getState();
-    const { accessToken, view, storeInfo, routePermissions } = state.auth;
-    const isLoginPage = location.pathname === "/login";
+    const redirectPath = await getRedirectRoute(location.pathname);
 
-    if (!accessToken && !isLoginPage) {
+    if (redirectPath) {
       throw redirect({
-        to: "/login",
+        to: redirectPath,
       });
-    }
-
-    if (!accessToken && isLoginPage) {
-      return;
-    }
-
-    if (accessToken && !view) {
-      let profileData: UserProfileResponse | null = null;
-
-      try {
-        profileData = await fetchUserProfile();
-      } catch (error) {
-        if (!isLoginPage) {
-          throw redirect({
-            to: "/login",
-          });
-        }
-        return;
-      }
-
-      let perms: RoutePermissions;
-
-      if (
-        profileData.view?.type === "CLIENT" &&
-        profileData.accesses?.length > 0
-      ) {
-        const storeId = String(profileData.accesses[0].store_id);
-
-        try {
-          const storeData = await fetchStoreInfo(storeId);
-          perms = ensurePermissions(profileData.view, storeData);
-        } catch (error) {
-          perms = ensurePermissions(profileData.view, null);
-        }
-      } else {
-        perms = ensurePermissions(profileData.view, null);
-      }
-
-      if (isLoginPage) {
-        throw redirect({
-          to: perms.defaultRoute,
-        });
-      }
-
-      if (!perms.allowedRoutes.includes(location.pathname)) {
-        throw redirect({
-          to: perms.defaultRoute,
-        });
-      }
-    }
-
-    if (accessToken && view) {
-      const perms = routePermissions || ensurePermissions(view, storeInfo);
-
-      if (isLoginPage) {
-        throw redirect({
-          to: perms.defaultRoute,
-        });
-      }
-
-      if (!perms.allowedRoutes.includes(location.pathname)) {
-        throw redirect({
-          to: perms.defaultRoute,
-        });
-      }
     }
   },
 });
 
 function RootComponent() {
-  const { isCheckingAuth } = useAuthCheck();
-  const { user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, view } = useAppSelector((state) => state.auth);
 
-  const { view } = useAppSelector((state) => state.auth);
   const isAdmin = view?.type === "ADMIN";
 
   return (
@@ -185,18 +50,12 @@ function RootComponent() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          {user && <LogoutButton />}
+          {isAuthenticated && <LogoutButton />}
           <ThemeToggle />
         </div>
       </div>
       <main className="container mx-auto p-4">
-        {isCheckingAuth ? (
-          <div className="flex justify-center items-center h-[60vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground"></div>
-          </div>
-        ) : (
-          <Outlet />
-        )}
+        <Outlet />
       </main>
       <Toaster />
     </div>

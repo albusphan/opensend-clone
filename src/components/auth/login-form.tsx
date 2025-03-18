@@ -67,8 +67,8 @@ export function LoginForm({
       window.location.reload();
     } catch (error: any) {
       const errorData = error?.data || {};
-      const errorCode = errorData.code || "";
-      const errorMsg = errorData.message || "";
+      const errorCode = errorData?.code || "";
+      const errorMsg = errorData?.message || "";
 
       const formattedErrorMsg = errorMsg.includes("::")
         ? errorMsg.split("::")[1].trim()

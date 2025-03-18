@@ -6,21 +6,71 @@ This repository contains my implementation of the OpenSend frontend assignment, 
 2. **Conditional Routing**
 3. **Dynamic Dashboard with Editable Widgets**
 
+## !!!IMPORTANT: Assumptions Made
+
+Due to the limited information provided about certain API endpoints and response structures:
+
+1. **User Roles**: I've implemented the routing based on the described conditions, assuming standard JWT token structures
+2. **Dashboard Editing**: Base on requirements from task 3, only Admin users can edit(include drag/drop/resize) the dashboard widgets, which mean member user can view the widget only
+3. **Widget Storage**: In the absence of a widget API, I've used localStorage to persist widget configurations
+
 ## Project Structure
 
-The project is built using Vite, React, TypeScript, RTK Query, and TailwindCSS. It uses React Router for routing and follows a clean, modular architecture.
+The project is built using Vite, React, TypeScript, RTK Query, and TailwindCSS. It uses Tanstack Router for routing and follows a clean, modular architecture.
 
 ## Setup Instructions
 
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   npm install
+   pnpm install
    ```
 3. Run the development server:
    ```bash
-   npm run dev
+   pnpm run dev
    ```
+
+## End-to-End Testing
+
+This project uses Playwright for end-to-end testing to ensure the application works correctly across different browsers.
+
+### Running E2E Tests
+
+Run the tests in headless mode:
+
+```bash
+pnpm run test:e2e
+```
+
+Run tests with UI mode for visual debugging:
+
+```bash
+pnpm run test:e2e:ui
+```
+
+### Test Coverage
+
+The E2E tests cover:
+
+- User authentication flows
+- Role-based routing
+- Simple Dashboard functionality
+
+### Browser Support
+
+Tests run automatically on:
+
+- Chromium
+- Firefox
+- WebKit (Safari)
+
+### Configuration
+
+Playwright is configured with:
+
+- Automatic test server startup
+- Global setup for consistent test environment
+- Trace collection for failed tests
 
 ## Application Features
 
@@ -59,22 +109,6 @@ You can test the application with these accounts:
 - Admin: test+admin@yopmail.com / 12345678
 - Member: test+member@yopmail.com / 12345678
 - Onboarding: test+onboarding@yopmail.com / 12345678
-
-## Notes on Implementation
-
-- **Authentication**: JWT tokens are stored in localStorage and used for API requests
-- **State Management**: Redux with RTK Query for server state, local state for UI elements
-- **Responsive Design**: Fully responsive, works on mobile and desktop
-- **Theme Switching**: Theme preference is stored in localStorage
-- **Security**: Input validation and proper handling of authentication tokens
-
-## Assumptions Made
-
-Due to the limited information provided about certain API endpoints and response structures:
-
-1. **User Roles**: I've implemented the routing based on the described conditions, assuming standard JWT token structures
-2. **Dashboard Editing**: Only Admin users can edit(include drag/drop/resize) the dashboard widgets, which mean member user can view the widget only
-3. **Widget Storage**: In the absence of a widget API, I've used localStorage to persist widget configurations
 
 ## Libraries Used
 

@@ -21,12 +21,12 @@ export interface ViewToggles {
   id: number;
   role_id: number;
   view_type: string;
-  [key: string]: any; // For all the boolean properties
+  [key: string]: unknown; // For all the boolean properties
 }
 
 export interface View {
   type: string; // 'ADMIN' | 'CLIENT' etc.
-  access: any | null;
+  access: unknown | null;
   accesses: Array<{
     store_id: string | null;
     user_id: number;
