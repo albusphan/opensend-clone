@@ -1,4 +1,5 @@
 import { useTheme } from "@/components/theme/theme-provider";
+import { useMemo } from "react";
 
 export function LogoFull({
   className = "",
@@ -8,7 +9,17 @@ export function LogoFull({
   height?: string;
 }) {
   const { theme } = useTheme();
-  const fillColor = theme === "dark" ? "#FFFFFF" : "#1C1C1C";
+  const isSystem = theme === "system";
+  const isSystemDark = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
+
+  const fillColor = useMemo(() => {
+    if (isSystem) {
+      return isSystemDark ? "#FFFFFF" : "#1C1C1C";
+    }
+    return theme === "dark" ? "#FFFFFF" : "#1C1C1C";
+  }, [isSystem, isSystemDark, theme]);
 
   return (
     <svg
